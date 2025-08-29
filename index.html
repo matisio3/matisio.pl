@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Wkrótce - matisio.pl</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #000;
+    }
+    .overlay, .video-bg, .final-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.6s;
+    }
+    .overlay {
+      background: #000;
+      color: #fff;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 100;
+      text-align: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hidden { opacity: 0; pointer-events: none; }
+    .video-bg {
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    video {
+      width: 100vw; height: 100vh; object-fit: cover;
+      filter: brightness(0.4);
+      pointer-events: none;
+    }
+    .final-overlay {
+      z-index: 10;
+      color: #fff;
+      font-size: 2.0rem;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-shadow: 0 2px 8px #000a, 0 0px 1px #fff3;
+      background: none;
+      pointer-events: none;
+      user-select: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 28px;
+      display: flex;
+    }
+    .main-text {
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 26px 22px 16px 22px;
+      display: inline-block;
+      min-width: 250px;
+      max-width: 90vw;
+    }
+    .main-text a {
+      color: #68e4ff;
+      text-decoration: underline;
+      transition: color 0.18s;
+      pointer-events: all;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .main-text a:hover {
+      color: #b2ffd3;
+    }
+    .volume-control {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.45);
+      border-radius: 12px;
+      padding: 8px 20px;
+      pointer-events: all;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1rem;
+    }
+    .volume-control input[type=range] {
+      width: 150px;
+    }
+    .volume-icon {
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 2px #222);
+    }
+    @media (max-width: 600px) {
+      .overlay, .final-overlay {
+        font-size: 1.05rem;
+        padding: 12px;
+      }
+      .main-text { padding: 15px 7vw 7px 7vw; }
+      .volume-control input[type=range] { width: 100px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- EKRAN POWITALNY -->
+  <div class="overlay" id="welcome">
+    Kliknij gdziekolwiek, aby zobaczyć stronę
+  </div>
+
+  <!-- TŁO WIDEO -->
+  <div class="video-bg" id="bg" style="display:none;">
+    <video id="vid" src="video.mp4" autoplay loop playsinline></video>
+  </div>
+
+  <!-- NAPIS NA ŚRODKU + PASEK GŁOŚNOŚCI -->
+  <div class="final-overlay" id="txt" style="display:none;">
+    <div class="main-text">
+      <div>Tu coś będzie wkrótce.</div>
+      <div style="margin-top:6px;">
+        Na razie zapraszam na stronę
+        <a href="https://matisio.eu" target="_blank" rel="noopener">matisio.eu</a>
+      </div>
+    </div>
+    <div class="volume-control" id="volumeControl">
+      <span class="volume-icon" id="volIcon">&#128266;</span>
+      <input type="range" min="0" max="1" step="0.01" value="1" id="volRange" />
+    </div>
+  </div>
+
+  <script>
+    const welcome = document.getElementById('welcome');
+    const bg = document.getElementById('bg');
+    const txt = document.getElementById('txt');
+    const vid = document.getElementById('vid');
+    const volumeControl = document.getElementById('volumeControl');
+    const volRange = document.getElementById('volRange');
+    const volIcon = document.getElementById('volIcon');
+
+    function startSite() {
+      welcome.classList.add('hidden');
+      setTimeout(() => { welcome.style.display = 'none'; }, 700);
+      bg.style.display = 'flex';
+      txt.style.display = 'flex';
+
+      // Odtwarzanie z dźwiękiem
+      vid.muted = false;
+      vid.volume = volRange.value;
+      vid.play().catch(()=>{});
+
+      // Pokazanie sterowania głośnością
+      volumeControl.style.display = 'flex';
+    }
+
+    welcome.addEventListener('click', startSite);
+    welcome.addEventListener('touchstart', startSite);
+
+    // Sterowanie głośnością
+    volRange.addEventListener('input', function() {
+      vid.volume = this.value;
+      vid.muted = (this.value == 0);
+      if(this.value == 0) {
+        volIcon.textContent = "🔇";
+      } else if(this.value < 0.5) {
+        volIcon.textContent = "🔉";
+      } else {
+        volIcon.textContent = "🔊";
+      }
+    });
+
+    // Domyślnie ukryj sterowanie głośnością do kliknięcia
+    volumeControl.style.display = 'none';
+  </script>
+</body>
+</html>
